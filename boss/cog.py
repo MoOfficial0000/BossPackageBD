@@ -48,6 +48,7 @@ from ballsdex.core.models import (
 #    If you are using a ball made from the admin panel for the boss, then it's fine, since admin panel requires wild card.
 # 3. You may change the shiny buffs below to suit your dex better, it's defaulted at 1000 HP & ATK Bonus
 # 4. Please report all bugs to user @moofficial on discord
+# 5. Make sure to add "boss" to PACKAGES at ballsdex/core/bot.py (Usually around line 48)
 
 # HOW TO PLAY
 # Some commands can only be used by admins, these control the boss actions.
@@ -99,7 +100,7 @@ class Boss(commands.GroupCog):
         extension = ball.collection_card.split(".")[-1]
         file_location = "." + ball.collection_card
         file_name = f"nt_{generate_random_name()}.{extension}"
-        await interaction.response.send_message((f"# The boss battle has begun!\n-# HP: {self.bossHP} <@&1248729066249519336>"),file=discord.File(file_location, filename=file_name),)
+        await interaction.response.send_message((f"# The boss battle has begun!\n-# HP: {self.bossHP}"),file=discord.File(file_location, filename=file_name),)
         await interaction.followup.send("Use `/boss join` to join the battle!")
         if ball != None:
             self.boss_enabled = True
@@ -138,7 +139,7 @@ class Boss(commands.GroupCog):
         await interaction.followup.send(f"Use `/boss select` to select your defending {settings.collectible_name}.\nYour selected {settings.collectible_name}'s HP will be used to defend.")
         self.picking = True
         self.attack = True
-        self.bossattack = (attack_amount if attack_amount is not None else random.randrange(0, 10000, 500))
+        self.bossattack = (attack_amount if attack_amount is not None else random.randrange(0, 2000, 100))
 
     @app_commands.command()
     @app_commands.checks.has_any_role(*settings.root_role_ids, *settings.admin_role_ids)
@@ -245,47 +246,23 @@ class Boss(commands.GroupCog):
             return
         self.balls.append(ball)
         self.usersinround.append([int(interaction.user.id),self.round])
-        if ball.attack > 14000:
+        if ball.attack > 14000: #maximum and minimum atk and hp stats 
             ballattack = 14000
+        elif ball.attack < 0:
+            ballattack = 0
         else:
             ballattack = ball.attack
         if ball.health > 14000:
             ballhealth = 14000
+        elif ball.health < 0:
+            ballhealth = 0
         else:
             ballhealth = ball.health
         messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot, is_trade=True)} has been selected for this round, with {ballattack} ATK and {ballhealth} HP"
         if "✨" in messageforuser:
-            messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot, is_trade=True)} has been selected for this round, with {ballattack}+5000 ATK and {ballhealth}+5000 HP"
-            ballhealth += 5000
-            ballattack += 5000
-        elif "🌌" in messageforuser:
-            messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot, is_trade=True)} has been selected for this round, with {ballattack}+12000 ATK and {ballhealth}+12000 HP"
-            ballhealth += 12000
-            ballattack += 12000
-        elif "🟨" in messageforuser or "⬜" in messageforuser:
-            messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot, is_trade=True)} has been selected for this round, with {ballattack}+1500 ATK and {ballhealth}+1500 HP"
-            ballhealth += 1500
-            ballattack += 1500
-        elif "⬛" in messageforuser:
-            messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot, is_trade=True)} has been selected for this round, with {ballattack}+1250 ATK and {ballhealth}+1250 HP"
-            ballhealth += 1250
-            ballattack += 1250
-        elif "🟦" in messageforuser or "🟥" in messageforuser or "🟩" in messageforuser or "💛" in messageforuser or "🩵" in messageforuser or "🟪" in messageforuser or "💚" in messageforuser or "🟧" in messageforuser or "🩶" in messageforuser or "🟫" in messageforuser or "🩷" in messageforuser:
             messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot, is_trade=True)} has been selected for this round, with {ballattack}+1000 ATK and {ballhealth}+1000 HP"
             ballhealth += 1000
             ballattack += 1000
-        elif "🚀" in messageforuser or "🎩" in messageforuser or "🐑" in messageforuser or "🔮" in messageforuser:
-            messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot, is_trade=True)} has been selected for this round, with {ballattack}+3000 ATK and {ballhealth}+3000 HP"
-            ballhealth += 3000
-            ballattack += 3000
-        elif "☀" in messageforuser or "☀️" in messageforuser:
-            messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot, is_trade=True)} has been selected for this round, with {ballattack}+2000 ATK and {ballhealth}+2000 HP"
-            ballhealth += 2000
-            ballattack += 2000
-        elif "⚔️" in messageforuser or "⚔" in messageforuser or "🏆" in messageforuser:
-            messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot, is_trade=True)} has been selected for this round, with {ballattack}+6000 ATK and {ballhealth}+6000 HP"
-            ballhealth += 6000
-            ballattack += 6000
         else:
             pass
 
