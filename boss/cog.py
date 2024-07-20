@@ -46,7 +46,7 @@ from ballsdex.core.models import (
 #    there's a chance you may have not selected a wild card as it isn't required.
 #    Cards without wild cards do not work as a boss, as again, this will result in an error.
 #    If you are using a ball made from the admin panel for the boss, then it's fine, since admin panel requires wild card.
-# 3. You may change the shiny buffs below to suit your dex better, it's defaulted at 1000 HP & ATK Bonus
+# 3. You may change the shiny buffs below to suit your dex better (Line 264-266), it's defaulted at 1000 HP & ATK Bonus
 # 4. Please report all bugs to user @moofficial on discord
 # 5. Make sure to add "boss" to PACKAGES at ballsdex/core/bot.py (Usually around line 48)
 # 6. Finally, add the boss folder to ballsdex/packages folder
