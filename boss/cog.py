@@ -331,7 +331,7 @@ class Boss(commands.GroupCog):
                 f"HP:`0` • Shiny: `None`"
             )
             await log_action(
-                f"`BOSS REWARDS` gave {settings.collectible_name} {self.bossball.country} to the winner. "
+                f"`BOSS REWARDS` gave {settings.collectible_name} {self.bossball.country} to *<@{bosswinner}>*"
                 f"Special=Boss ATK=0 "
                 f"HP=0 shiny=None",
                 self.bot,
