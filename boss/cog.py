@@ -259,9 +259,9 @@ class Boss(commands.GroupCog):
             ballhealth = 0
         else:
             ballhealth = ball.health
-        messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot, is_trade=True)} has been selected for this round, with {ballattack} ATK and {ballhealth} HP"
+        messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot, is_trade=True)}has been selected for this round, with {ballattack} ATK and {ballhealth} HP"
         if "✨" in messageforuser:
-            messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot, is_trade=True)} has been selected for this round, with {ballattack}+1000 ATK and {ballhealth}+1000 HP"
+            messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot, is_trade=True)}has been selected for this round, with {ballattack}+1000 ATK and {ballhealth}+1000 HP"
             ballhealth += 1000
             ballattack += 1000
         else:
