@@ -312,6 +312,18 @@ class Boss(commands.GroupCog):
                 bosswinner = totalnum[k][0]
         if bosswinner == 0:
             return await interaction.response.send_message(f"BOSS HAS CONCLUDED\nThe boss has won the Boss Battle!")
+            self.round = 0
+            self.balls = []
+            self.users = []
+            self.currentvalue = ("")
+            self.usersdamage = []
+            self.usersinround = []
+            self.bossHP = 40000
+            self.round = 0
+            self.attack = False
+            self.bossattack = 0
+            self.bossball = None
+            self.bosswild = None
         if do_not_reward == False:
             await interaction.response.defer(thinking=True)
             player, created = await Player.get_or_create(discord_id=bosswinner)
