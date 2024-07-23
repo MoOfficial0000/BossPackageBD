@@ -195,7 +195,8 @@ class Boss(commands.GroupCog):
                     f"{self.currentvalue}There is {self.bossHP} HP remaining on the boss",
                 )
         else:
-            for user in self.users:
+            snapshotusers = self.users.copy()
+            for user in snapshotusers:
                 if str(user) not in self.currentvalue:
                     self.currentvalue += ("<@"+str(user)+"> has not picked on time and ***died!***\n")
                     self.users.remove(user)
