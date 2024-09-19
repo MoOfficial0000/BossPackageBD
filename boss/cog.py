@@ -86,6 +86,10 @@ class Boss(commands.GroupCog):
         self.bossball = None
         self.bosswild = None
 
+    @staticmethod
+    def bound(low, hight, value):
+        return max(low, min(high, value))
+
     @app_commands.command()
     @app_commands.checks.has_any_role(*settings.root_role_ids, *settings.admin_role_ids)
     async def start(self, interaction: discord.Interaction, ball: BallTransform, hp_amount: int | None = None,):
@@ -210,8 +214,8 @@ class Boss(commands.GroupCog):
                 )
         self.currentvalue = ("")
 
-    @ app_commands.command()
-    @ app_commands.checks.has_any_role(*settings.root_role_ids, *settings.admin_role_ids)
+    @app_commands.command()
+    @app_commands.checks.has_any_role(*settings.root_role_ids, *settings.admin_role_ids)
     async def peek(self, interaction: discord.Interaction):
         """
         See current stats of the boss
@@ -246,27 +250,20 @@ class Boss(commands.GroupCog):
             )
         if ball == None:
             return
+            
         self.balls.append(ball)
         self.usersinround.append([int(interaction.user.id),self.round])
-        if ball.attack > 14000: #maximum and minimum atk and hp stats 
-            ballattack = 14000
-        elif ball.attack < 0:
-            ballattack = 0
-        else:
-            ballattack = ball.attack
-        if ball.health > 14000:
-            ballhealth = 14000
-        elif ball.health < 0:
-            ballhealth = 0
-        else:
-            ballhealth = ball.health
+
+        # Maximum and minimum attack and health stats 
+        ballattack = self.bound(0, 14000, ball.attack)
+        ballhealth = self.bound(0, 14000, ball.health)
+
         messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot, is_trade=True)}has been selected for this round, with {ballattack} ATK and {ballhealth} HP"
+        
         if "✨" in messageforuser:
             messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot, is_trade=True)}has been selected for this round, with {ballattack}+1000 ATK and {ballhealth}+1000 HP"
             ballhealth += 1000
             ballattack += 1000
-        else:
-            pass
 
         if not self.attack:
             self.bossHP -= ballattack
