@@ -13,7 +13,7 @@ Download the `boss` directory, and add it to your `ballsdex/packages` folder. <b
 After that, go to `ballsdex/core/bot.py` and search for the line that starts with `PACKAGES` (around line 48). <br>
 When you have found the line, add `boss` to the inside of the square brackets, separating it with a comma.
 
-If you want to change the shiny buffs, go to lines 264-266 in `cog.py`.
+If you want to change the shiny buffs, go to lines 238-239 in `cog.py`.
 
 ------------------
 
