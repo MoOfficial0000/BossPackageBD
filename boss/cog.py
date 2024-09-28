@@ -118,7 +118,6 @@ class Boss(commands.GroupCog):
         """
         Start a round where the Boss Attacks
         """
-        self.round += 1
         if not self.boss_enabled:
             return await interaction.response.send_message("Boss is disabled", ephemeral=True)
         if self.picking:
@@ -127,6 +126,7 @@ class Boss(commands.GroupCog):
             return await interaction.response.send_message("There are not enough users to start the round", ephemeral=True)
         if self.bossHP <= 0:
             return await interaction.response.send_message("The Boss is dead", ephemeral=True)
+        self.round += 1
 
         def generate_random_name():
             source = string.ascii_uppercase + string.ascii_lowercase + string.ascii_letters
@@ -148,7 +148,6 @@ class Boss(commands.GroupCog):
         """
         Start a round where the Boss Defends
         """
-        self.round += 1
         if not self.boss_enabled:
             return await interaction.response.send_message("Boss is disabled", ephemeral=True)
         if self.picking:
@@ -157,6 +156,7 @@ class Boss(commands.GroupCog):
             return await interaction.response.send_message("There are not enough users to start the round", ephemeral=True)
         if self.bossHP <= 0:
             return await interaction.response.send_message("The Boss is dead", ephemeral=True)
+        self.round += 1
 
         def generate_random_name():
             source = string.ascii_uppercase + string.ascii_lowercase + string.ascii_letters
