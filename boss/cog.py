@@ -260,9 +260,9 @@ class Boss(commands.GroupCog):
             ballhealth = 0
         else:
             ballhealth = ball.health
-        messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot, is_trade=True)}has been selected for this round, with {ballattack} ATK and {ballhealth} HP"
+        messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot)}has been selected for this round, with {ballattack} ATK and {ballhealth} HP"
         if "✨" in messageforuser:
-            messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot, is_trade=True)}has been selected for this round, with {ballattack}+1000 ATK and {ballhealth}+1000 HP"
+            messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot)}has been selected for this round, with {ballattack}+1000 ATK and {ballhealth}+1000 HP"
             ballhealth += 1000
             ballattack += 1000
         else:
@@ -271,13 +271,13 @@ class Boss(commands.GroupCog):
         if not self.attack:
             self.bossHP -= ballattack
             self.usersdamage.append([int(interaction.user.id),ballattack])
-            self.currentvalue += ("<@"+str(interaction.user.id)+">'s "+str(ball.description(short=True, include_emoji=True, bot=self.bot, is_trade=True))+" has dealt "+(str(ballattack))+" damage!\n")
+            self.currentvalue += ("<@"+str(interaction.user.id)+">'s "+str(ball.description(short=True, include_emoji=True, bot=self.bot))+" has dealt "+(str(ballattack))+" damage!\n")
         else:
             if self.bossattack >= ballhealth:
                 self.users.remove(interaction.user.id)
-                self.currentvalue += ("<@"+str(interaction.user.id)+">'s "+str(ball.description(short=True, include_emoji=True, bot=self.bot, is_trade=True))+" had "+(str(ballhealth))+"HP and ***died!***\n")
+                self.currentvalue += ("<@"+str(interaction.user.id)+">'s "+str(ball.description(short=True, include_emoji=True, bot=self.bot))+" had "+(str(ballhealth))+"HP and ***died!***\n")
             else:
-                self.currentvalue += ("<@" + str(interaction.user.id) + ">'s " + str(ball.description(short=True, include_emoji=True, bot=self.bot, is_trade=True)) + " had " + (str(ballhealth)) + "HP and ***survived!***\n")
+                self.currentvalue += ("<@" + str(interaction.user.id) + ">'s " + str(ball.description(short=True, include_emoji=True, bot=self.bot)) + " had " + (str(ballhealth)) + "HP and ***survived!***\n")
 
         await interaction.response.send_message(
             messageforuser, ephemeral=True
