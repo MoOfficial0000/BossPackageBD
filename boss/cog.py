@@ -37,31 +37,8 @@ from ballsdex.core.models import (
     specials,
 )
 
-# IMPORTANT NOTES, READ BEFORE USING
-# 1. YOU MUST HAVE A SPECIAL CALLED "Boss" IN YOUR DEX, THIS IS FOR REWARDING THE WINNER.
-#    MAKE IT SO THE SPECIAL'S END DATE IS BEFORE TODAY'S DATE
-# 2. ONLY USE A COUNTRYBALL AS A BOSS in /boss start IF IT HAS BOTH THE COLLECTIBLE AND WILD CARDS STORED,
-#    OTHERWISE THIS WILL RESULT TO AN ERROR.
-#    Sometimes, you might create a non-spawnable ball using /admin balls create command, if that's the case
-#    there's a chance you may have not selected a wild card as it isn't required.
-#    Cards without wild cards do not work as a boss, as again, this will result in an error.
-#    If you are using a ball made from the admin panel for the boss, then it's fine, since admin panel requires wild card.
-# 3. You may change the shiny buffs below to suit your dex better (Line 264-266), it's defaulted at 1000 HP & ATK Bonus
-# 4. Please report all bugs to user @moofficial on discord
-# 5. Make sure to add "boss" to PACKAGES at ballsdex/core/bot.py (Usually around line 48)
-# 6. Finally, add the boss folder to ballsdex/packages folder
-
-# HOW TO PLAY
-# Some commands can only be used by admins, these control the boss actions.
-# 1. Start the boss using /boss start command. (ADMINS ONLY)
-#    Choose a countryball to be the boss (required). Choose HP (Optional, Defaulted at 40000)
-# 2. Players can join using /boss join command.
-# 3. Start a round using /boss defend or /boss attack.(ADMINS ONLY)
-#    With /boss attack you can choose how much attack the boss deals (Optional, Defaulted to RNG from 0 to 2000)
-# 4. Players now choose an item to use against the boss using /boss select
-# 5. /boss end_round ends the current round and displays user permformance about the round (ADMIN ONLY)
-# 6. Step 3-5 is repeated until the boss' HP runs out, but you can end early with Step 7.
-# 7. /boss_conclude ends the boss battle and rewards the winner, but you can choose to *not* reward the winner (ADMIN ONLY)
+# Health, Attack
+SHINY_BUFFS = (1000, 1000)
 
 
 @app_commands.guilds(*settings.admin_guild_ids)
@@ -261,9 +238,12 @@ class Boss(commands.GroupCog):
         messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot)}has been selected for this round, with {ballattack} ATK and {ballhealth} HP"
 
         if "✨" in messageforuser:
-            messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot)}has been selected for this round, with {ballattack}+1000 ATK and {ballhealth}+1000 HP"
-            ballhealth += 1000
-            ballattack += 1000
+            messageforuser = (
+                f"{ball.description(short=True, include_emoji=True, bot=self.bot)}has been selected for this round, "
+                f"with {ballattack}+{SHINY_BUFFS[1]} ATK and {ballhealth}+{SHINY_BUFFS[0]} HP"
+            )
+            ballhealth += SHINY_BUFFS[0]
+            ballattack += SHINY_BUFFS[1]
 
         if not self.attack:
             self.bossHP -= ballattack
