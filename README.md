@@ -22,11 +22,11 @@ Change the `SHINY_BUFFS` variable, setting the first number to the health buff a
 ## Commands
 
 > [!NOTE]
-> Some commands can only be used by admins. The commands that admins can only access control the boss's actions.
+> Some commands can only be used by admins. The commands that admins can only access are used to control the boss's actions.
 
 ### Admin Commands
 
-* `/boss start` - Summons a boss. You are required to choose a ball. You can also choose the amount of health the boss will have (defaulted at 40,000)
+* `/boss start` - Summons a boss. You are required to choose a ball. You can also select the amount of health the boss will have (defaulted at 40,000)
 * `/boss attack` - Starts a round, letting the boss attack. You can specify the amount of damage the boss deals. If it is not specified, it will range from zero to 2000.
 * `/boss defend` - Starts a round, letting the boss defend.
 * `/boss end_round` - Ends the current round and displays users' performance on the round.
