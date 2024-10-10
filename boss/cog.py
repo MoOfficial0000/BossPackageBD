@@ -122,7 +122,6 @@ class Boss(commands.GroupCog):
         """
         Start a round where the Boss Attacks
         """
-        self.round += 1
         if not self.boss_enabled:
             return await interaction.response.send_message("Boss is disabled", ephemeral=True)
         if self.picking:
@@ -131,6 +130,7 @@ class Boss(commands.GroupCog):
             return await interaction.response.send_message("There are not enough users to start the round", ephemeral=True)
         if self.bossHP <= 0:
             return await interaction.response.send_message("The Boss is dead", ephemeral=True)
+        self.round += 1
 
         def generate_random_name():
             source = string.ascii_uppercase + string.ascii_lowercase + string.ascii_letters
@@ -152,7 +152,6 @@ class Boss(commands.GroupCog):
         """
         Start a round where the Boss Defends
         """
-        self.round += 1
         if not self.boss_enabled:
             return await interaction.response.send_message("Boss is disabled", ephemeral=True)
         if self.picking:
@@ -161,6 +160,7 @@ class Boss(commands.GroupCog):
             return await interaction.response.send_message("There are not enough users to start the round", ephemeral=True)
         if self.bossHP <= 0:
             return await interaction.response.send_message("The Boss is dead", ephemeral=True)
+        self.round += 1
 
         def generate_random_name():
             source = string.ascii_uppercase + string.ascii_lowercase + string.ascii_letters
@@ -258,23 +258,23 @@ class Boss(commands.GroupCog):
         ballattack = self.bound(0, 14000, ball.attack)
         ballhealth = self.bound(0, 14000, ball.health)
 
-        messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot, is_trade=True)}has been selected for this round, with {ballattack} ATK and {ballhealth} HP"
-        
+        messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot)}has been selected for this round, with {ballattack} ATK and {ballhealth} HP"
+
         if "✨" in messageforuser:
-            messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot, is_trade=True)}has been selected for this round, with {ballattack}+1000 ATK and {ballhealth}+1000 HP"
+            messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot)}has been selected for this round, with {ballattack}+1000 ATK and {ballhealth}+1000 HP"
             ballhealth += 1000
             ballattack += 1000
 
         if not self.attack:
             self.bossHP -= ballattack
             self.usersdamage.append([int(interaction.user.id),ballattack])
-            self.currentvalue += ("<@"+str(interaction.user.id)+">'s "+str(ball.description(short=True, include_emoji=True, bot=self.bot, is_trade=True))+" has dealt "+(str(ballattack))+" damage!\n")
+            self.currentvalue += ("<@"+str(interaction.user.id)+">'s "+str(ball.description(short=True, include_emoji=True, bot=self.bot))+" has dealt "+(str(ballattack))+" damage!\n")
         else:
             if self.bossattack >= ballhealth:
                 self.users.remove(interaction.user.id)
-                self.currentvalue += ("<@"+str(interaction.user.id)+">'s "+str(ball.description(short=True, include_emoji=True, bot=self.bot, is_trade=True))+" had "+(str(ballhealth))+"HP and ***died!***\n")
+                self.currentvalue += ("<@"+str(interaction.user.id)+">'s "+str(ball.description(short=True, include_emoji=True, bot=self.bot))+" had "+(str(ballhealth))+"HP and ***died!***\n")
             else:
-                self.currentvalue += ("<@" + str(interaction.user.id) + ">'s " + str(ball.description(short=True, include_emoji=True, bot=self.bot, is_trade=True)) + " had " + (str(ballhealth)) + "HP and ***survived!***\n")
+                self.currentvalue += ("<@" + str(interaction.user.id) + ">'s " + str(ball.description(short=True, include_emoji=True, bot=self.bot)) + " had " + (str(ballhealth)) + "HP and ***survived!***\n")
 
         await interaction.response.send_message(
             messageforuser, ephemeral=True
