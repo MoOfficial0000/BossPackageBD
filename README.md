@@ -1,4 +1,4 @@
-# Boss Package
+# BossPackageBD
 
 > [!NOTE]
 > You must have a special called `Boss` in your dex. Make sure the special's end date is before today's date. The `Boss` special will be used to reward the winner.
@@ -10,9 +10,28 @@ Below is a guide on implementing this package into your Discord dex bot.
 
 ## Installation
 
+To install BossPackageBD, install it through [DexScript](https://github.com/Dotsian/DexScript/wiki/Installing,-Updating,-and-Uninstalling) or manually install it.
+
+<details>
+<summary><strong>Manually</strong></summary>
+
 Download the `boss` directory, and add it to your `ballsdex/packages` folder.
 Afterward, go to `ballsdex/core/bot.py` and search for the line starting with `PACKAGES` (around line 48).
 When you have found the line, add `boss` to the inside of the square brackets, separating it with a comma.
+
+</details>
+
+<details>
+<summary><strong>DexScript</strong></summary>
+
+Make sure [DexScript](https://github.com/Dotsian/DexScript/wiki/Installing,-Updating,-and-Uninstalling) is installed on your bot. In Discord, ensure you have eval command permissions and run `b.install https://github.com/MoOfficial0000/BossPackageBD`. 
+BossPackageBD will be instantly installed on your bot.
+
+</details>
+
+------------------
+
+## Configuration
 
 If you want to change the shiny buffs, go to line 48 in `cog.py`.
 Change the `SHINY_BUFFS` variable, setting the first number to the health buff and the second to the attack buff.
