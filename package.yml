@@ -4,9 +4,13 @@ description: >
   BossPackageBD is a custom boss battle package made by moofficial that allows you to battle, summon, and control bosses for your Ballsdex bot.
   For a list of BossPackageBD's commands, go to the [GitHub page](https://github.com/MoOfficial0000/BossPackageBD) and read the `README.md` file.
 author: moofficial
+
 color: D1271D
+restart: false
+
 supported:
   - ballsdex
+
 files:
   - __init__.py
   - cog.py
