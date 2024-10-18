@@ -5,6 +5,8 @@ description: >
   For a list of BossPackageBD's commands, go to the [GitHub page](https://github.com/MoOfficial0000/BossPackageBD) and read the `README.md` file.
 author: moofficial
 color: D1271D
+supported:
+  - ballsdex
 files:
   - __init__.py
   - cog.py
