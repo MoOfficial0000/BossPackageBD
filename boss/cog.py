@@ -382,17 +382,24 @@ class Boss(commands.GroupCog):
         test = self.usersdamage
         test2 = []
         total = ("")
+        total2 = ("")
         totalnum = []
         for i in range(len(test)):
-            if test[i][0] not in test2 and test[i][0] in self.users:
+            if test[i][0] not in test2:
                 temp = 0
                 tempvalue = test[i][0]
                 test2.append(tempvalue)
                 for j in range(len(test)):
                     if test[j][0] == tempvalue:
                         temp += test[j][1]
-                total += ("<@" + str(tempvalue) + "> has dealt a total of " + str(temp) + " damage!\n")
-                totalnum.append([tempvalue, temp])
+                if test[i][0] in self.users:
+                    user = await self.bot.fetch_user(int(tempvalue))
+                    total += (f"{user} has dealt a total of " + str(temp) + " damage!\n")
+                    totalnum.append([tempvalue, temp])
+                else:
+                    user = await self.bot.fetch_user(int(tempvalue))
+                    total2 += (f"[Dead/Disqualified] {user} has dealt a total of " + str(temp) + " damage!\n")
+
         bosswinner = 0
         highest = 0
         if winner == "DMG":
@@ -404,6 +411,11 @@ class Boss(commands.GroupCog):
             if len(totalnum) != 0:
                 bosswinner = totalnum[random.randint(0,len(totalnum)-1)][0]
         if bosswinner == 0:
+            await interaction.response.send_message(f"# Boss has concluded {self.bot.get_emoji(self.bossball.emoji_id)}\nThe boss has won the Boss Battle!")
+            with open("totalstats.txt", "w") as file:
+                file.write(f"{total}{total2}")
+            with open("totalstats.txt", "rb") as file:
+                await interaction.followup.send(file=discord.File(file, "totalstats.txt"))
             self.round = 0
             self.balls = []
             self.users = []
@@ -417,7 +429,7 @@ class Boss(commands.GroupCog):
             self.bossball = None
             self.bosswild = None
             self.disqualified = []
-            return await interaction.response.send_message(f"BOSS HAS CONCLUDED\nThe boss has won the Boss Battle!")
+            return
         if winner != "None":
             await interaction.response.defer(thinking=True)
             player, created = await Player.get_or_create(discord_id=bosswinner)
@@ -431,19 +443,23 @@ class Boss(commands.GroupCog):
                 health_bonus=0,
             )
             await interaction.followup.send(
-                f"BOSS HAS CONCLUDED.\n{total}\n<@{bosswinner}> has won the Boss Battle!\n\n"
-                f"`{self.bossball}` {settings.collectible_name} was successfully given to *<@{bosswinner}>*.\n"
-                f"ATK:`0` • Special: `Boss`\n"
-                f"HP:`0` • Shiny: `None`"
+                f"# Boss has concluded {self.bot.get_emoji(self.bossball.emoji_id)}\n<@{bosswinner}> has won the Boss Battle!\n\n"
+                f"`Boss` `{self.bossball}` {settings.collectible_name} was successfully given.\n"
             )
+            bosswinner_user = await self.bot.fetch_user(int(bosswinner))
+
             await log_action(
-                f"`BOSS REWARDS` gave {settings.collectible_name} {self.bossball.country} to the winner. "
+                f"`BOSS REWARDS` gave {settings.collectible_name} {self.bossball.country} to {bosswinner_user}. "
                 f"Special=Boss ATK=0 "
                 f"HP=0 shiny=None",
                 self.bot,
             )
         else:
-            await interaction.response.send_message(f"BOSS HAS CONCLUDED.\nThe boss has been defeated!")
+            await interaction.response.send_message(f"# Boss has concluded {self.bot.get_emoji(self.bossball.emoji_id)}\nThe boss has been defeated!")
+        with open("totalstats.txt", "w") as file:
+            file.write(f"{total}{total2}")
+        with open("totalstats.txt", "rb") as file:
+            await interaction.followup.send(file=discord.File(file, "totalstats.txt"))
         self.round = 0
         self.balls = []
         self.users = []
