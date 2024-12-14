@@ -206,7 +206,7 @@ class Boss(commands.GroupCog):
                 user_id = user
                 user = await self.bot.fetch_user(int(user))
                 if str(user) not in self.currentvalue:
-                    self.currentvalue += (str(user) has not selected on time and died!\n")
+                    self.currentvalue += (str(user)+" has not selected on time and died!\n")
                     self.users.remove(user_id)
             with open("roundstats.txt","w") as file:
                 file.write(f"{self.currentvalue}")
