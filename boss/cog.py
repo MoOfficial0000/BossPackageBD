@@ -347,7 +347,7 @@ class Boss(commands.GroupCog):
 
         if not self.attack:
             self.bossHP -= ballattack
-            self.usersdamage.append([int(interaction.user.id),ballattack])
+            self.usersdamage.append([int(interaction.user.id),ballattack,ball.description(short=True, include_emoji=True, bot=self.bot)])
             self.currentvalue += (str(interaction.user)+"'s "+str(ball.description(short=True, bot=self.bot))+" has dealt "+(str(ballattack))+" damage!\n")
         else:
             if self.bossattack >= ballhealth:
