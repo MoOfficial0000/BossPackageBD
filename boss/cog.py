@@ -366,7 +366,14 @@ class Boss(commands.GroupCog):
 
     @bossadmin.command(name="conclude")
     @app_commands.checks.has_any_role(*settings.root_role_ids, *settings.admin_role_ids)
-    async def conclude(self, interaction: discord.Interaction, do_not_reward: bool | None = False,):
+    @app_commands.choices(
+        winner=[
+            app_commands.Choice(name="Random", value="RNG"),
+            app_commands.Choice(name="Most Damage", value="DMG"),
+            app_commands.Choice(name="No Winner", value="None"),
+        ]
+    )
+    async def conclude(self, interaction: discord.Interaction, winner: str):
         """
         Finish the boss, conclude the Winner
         """
@@ -388,10 +395,14 @@ class Boss(commands.GroupCog):
                 totalnum.append([tempvalue, temp])
         bosswinner = 0
         highest = 0
-        for k in range(len(totalnum)):
-            if totalnum[k][1] > highest:
-                highest = totalnum[k][1]
-                bosswinner = totalnum[k][0]
+        if winner == "DMG":
+            for k in range(len(totalnum)):
+                if totalnum[k][1] > highest:
+                    highest = totalnum[k][1]
+                    bosswinner = totalnum[k][0]
+        else:
+            if len(totalnum) != 0:
+                bosswinner = totalnum[random.randint(0,len(totalnum)-1)][0]
         if bosswinner == 0:
             self.round = 0
             self.balls = []
@@ -407,7 +418,7 @@ class Boss(commands.GroupCog):
             self.bosswild = None
             self.disqualified = []
             return await interaction.response.send_message(f"BOSS HAS CONCLUDED\nThe boss has won the Boss Battle!")
-        if do_not_reward == False:
+        if winner != "None":
             await interaction.response.defer(thinking=True)
             player, created = await Player.get_or_create(discord_id=bosswinner)
             special = special = [x for x in specials.values() if x.name == "Boss"][0]
@@ -421,18 +432,18 @@ class Boss(commands.GroupCog):
             )
             await interaction.followup.send(
                 f"BOSS HAS CONCLUDED.\n{total}\n<@{bosswinner}> has won the Boss Battle!\n\n"
-                f"`{self.bossball.country}` {settings.collectible_name} was successfully given to *<@{bosswinner}>*.\n"
+                f"`{self.bossball}` {settings.collectible_name} was successfully given to *<@{bosswinner}>*.\n"
                 f"ATK:`0` • Special: `Boss`\n"
                 f"HP:`0` • Shiny: `None`"
             )
             await log_action(
-                f"`BOSS REWARDS` gave {settings.collectible_name} {self.bossball.country} to *<@{bosswinner}>*"
+                f"`BOSS REWARDS` gave {settings.collectible_name} {self.bossball.country} to the winner. "
                 f"Special=Boss ATK=0 "
                 f"HP=0 shiny=None",
                 self.bot,
             )
         else:
-            await interaction.response.send_message(f"BOSS HAS CONCLUDED.\n{total}\n<@{bosswinner}> has won the Boss Battle!\n\n")
+            await interaction.response.send_message(f"BOSS HAS CONCLUDED.\nThe boss has been defeated!")
         self.round = 0
         self.balls = []
         self.users = []
