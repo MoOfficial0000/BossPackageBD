@@ -291,7 +291,7 @@ class Boss(commands.GroupCog):
             messageforuser, ephemeral=True
         )
         await log_action(
-            f"{interaction.user}'s {messageforuser}",
+            f"-# Round {self.round}\n{interaction.user}'s {messageforuser}\n-# -------",
             self.bot,
         )
 
