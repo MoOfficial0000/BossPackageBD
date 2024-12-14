@@ -233,7 +233,7 @@ class Boss(commands.GroupCog):
         user_id : str | None = None,
         ):
         """
-        Disqualify a member from the boss (for best results, use this command when users cannot join anymore)
+        Disqualify a member from the boss
         """
         if (user and user_id) or (not user and not user_id):
             await interaction.response.send_message(
