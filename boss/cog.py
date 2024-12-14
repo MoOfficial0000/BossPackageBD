@@ -330,7 +330,7 @@ class Boss(commands.GroupCog):
             self.currentvalue = ("")
             self.usersdamage = []
             self.usersinround = []
-            000
+            self.bossHP = 0
             self.round = 0
             self.attack = False
             self.bossattack = 0
@@ -369,7 +369,7 @@ class Boss(commands.GroupCog):
         self.currentvalue = ("")
         self.usersdamage = []
         self.usersinround = []
-        000
+        self.bossHP = 0
         self.round = 0
         self.attack = False
         self.bossattack = 0
