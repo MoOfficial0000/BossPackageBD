@@ -364,6 +364,35 @@ class Boss(commands.GroupCog):
             self.bot,
         )
 
+    @app_commands.command()
+    async def ongoing(self, interaction: discord.Interaction):
+        """
+        Show your damage to the boss in the current fight.
+        """
+        snapshotdamage = self.usersdamage.copy()
+        ongoingvalue = ("")
+        ongoingfull = 0
+        ongoingdead = False
+        for i in range(len(snapshotdamage)):
+            if snapshotdamage[i][0] == interaction.user.id:
+                ongoingvalue += f"{snapshotdamage[i][2]}: {snapshotdamage[i][1]}\n\n"
+                ongoingfull += snapshotdamage[i][1]
+        if ongoingfull == 0:
+            if interaction.user.id in self.users:
+                await interaction.response.send_message("You have not dealt any damage.",ephemeral=True)
+            elif interaction.user.id in self.disqualified:
+                await interaction.response.send_message("You have been disqualified.",ephemeral=True)
+            else:
+                await interaction.response.send_message("You have not joined the battle, or you have died.",ephemeral=True)
+        else:
+            if interaction.user.id in self.users:
+                await interaction.response.send_message(f"You have dealt {ongoingfull} damage.\n{ongoingvalue}",ephemeral=True)
+            elif interaction.user.id in self.disqualified:
+                await interaction.response.send_message(f"You have dealt {ongoingfull} damage and have been disqualified.\n{ongoingvalue}",ephemeral=True)
+            else:
+                await interaction.response.send_message(f"You have dealt {ongoingfull} damage and you are now dead.\n{ongoingvalue}",ephemeral=True)
+
+
     @bossadmin.command(name="conclude")
     @app_commands.checks.has_any_role(*settings.root_role_ids, *settings.admin_role_ids)
     @app_commands.choices(
