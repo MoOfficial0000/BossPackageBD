@@ -348,13 +348,13 @@ class Boss(commands.GroupCog):
         if not self.attack:
             self.bossHP -= ballattack
             self.usersdamage.append([int(interaction.user.id),ballattack])
-            self.currentvalue += ("<@"+str(interaction.user.id)+">'s "+str(ball.description(short=True, include_emoji=True, bot=self.bot))+" has dealt "+(str(ballattack))+" damage!\n")
+            self.currentvalue += (str(interaction.user)+"'s "+str(ball.description(short=True, bot=self.bot))+" has dealt "+(str(ballattack))+" damage!\n")
         else:
             if self.bossattack >= ballhealth:
                 self.users.remove(interaction.user.id)
-                self.currentvalue += ("<@"+str(interaction.user.id)+">'s "+str(ball.description(short=True, include_emoji=True, bot=self.bot))+" had "+(str(ballhealth))+"HP and ***died!***\n")
+                self.currentvalue += (str(interaction.user)+"'s "+str(ball.description(short=True, bot=self.bot))+" had "+(str(ballhealth))+"HP and died!\n")
             else:
-                self.currentvalue += ("<@" + str(interaction.user.id) + ">'s " + str(ball.description(short=True, include_emoji=True, bot=self.bot)) + " had " + (str(ballhealth)) + "HP and ***survived!***\n")
+                self.currentvalue += (str(interaction.user)+"'s "+str(ball.description(short=True, bot=self.bot)) + " had " + (str(ballhealth)) + "HP and survived!\n")
 
         await interaction.response.send_message(
             messageforuser, ephemeral=True
