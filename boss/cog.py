@@ -434,15 +434,6 @@ class Boss(commands.GroupCog):
             app_commands.Choice(name="No Winner", value="None"),
         ]
     )
-    @bossadmin.command(name="conclude")
-    @app_commands.checks.has_any_role(*settings.root_role_ids, *settings.admin_role_ids)
-    @app_commands.choices(
-        winner=[
-            app_commands.Choice(name="Random", value="RNG"),
-            app_commands.Choice(name="Most Damage", value="DMG"),
-            app_commands.Choice(name="No Winner", value="None"),
-        ]
-    )
     async def conclude(self, interaction: discord.Interaction, winner: str):
         """
         Finish the boss, conclude the Winner
