@@ -47,22 +47,29 @@ from ballsdex.core.models import (
 #    there's a chance you may have not selected a wild card as it isn't required.
 #    Cards without wild cards do not work as a boss, as again, this will result in an error.
 #    If you are using a ball made from the admin panel for the boss, then it's fine, since admin panel requires wild card.
-# 3. You may change the shiny buffs below to suit your dex better (Line 264-266), it's defaulted at 1000 HP & ATK Bonus
+# 3. You may change the shiny buffs below to suit your dex better it's defaulted at 1000 HP & ATK Bonus
 # 4. Please report all bugs to user @moofficial on discord
 # 5. Make sure to add "boss" to PACKAGES at ballsdex/core/bot.py (Usually around line 48)
-# 6. Finally, add the boss folder to ballsdex/packages folder
+# 6. Finally, add the boss to packages at config.yml file
 
 # HOW TO PLAY
 # Some commands can only be used by admins, these control the boss actions.
-# 1. Start the boss using /boss start command. (ADMINS ONLY)
+# 1. Start the boss using /boss admin start command. (ADMINS ONLY)
 #    Choose a countryball to be the boss (required). Choose HP (Required)
 # 2. Players can join using /boss join command.
-# 3. Start a round using /boss defend or /boss attack.(ADMINS ONLY)
-#    With /boss attack you can choose how much attack the boss deals (Optional, Defaulted to RNG from 0 to 2000)
+# 3. Start a round using /boss admin defend or /boss admin attack.(ADMINS ONLY)
+#    With /boss admin attack you can choose how much attack the boss deals (Optional, Defaulted to RNG from default 0 to 2000, can be changed below)
 # 4. Players now choose an item to use against the boss using /boss select
-# 5. /boss end_round ends the current round and displays user permformance about the round (ADMIN ONLY)
+# 5. /boss admin end_round ends the current round and displays user permformance about the round (ADMIN ONLY)
 # 6. Step 3-5 is repeated until the boss' HP runs out, but you can end early with Step 7.
-# 7. /boss_conclude ends the boss battle and rewards the winner, but you can choose to *not* reward the winner (ADMIN ONLY)
+# 7. /boss admin conclude ends the boss battle and rewards the winner, but you can choose to have *no* winner (ADMIN ONLY)
+
+SHINYBUFFS = [1000,1000] # Shiny Buffs
+# ATK, HP
+MAXSTATS = [5000,5000] # Max stats a card is limited to (before buffs)
+# ATK, HP
+DAMAGERNG = [0,2000] # Damage a boss can deal IF attack_amount has NOT been inputted in /boss admin attack.
+# Min Damage, Max Damage
 
 
 @app_commands.guilds(*settings.admin_guild_ids)
@@ -150,7 +157,7 @@ class Boss(commands.GroupCog):
         await interaction.channel.send(f"> Use `/boss select` to select your defending {settings.collectible_name}.\n> Your selected {settings.collectible_name}'s HP will be used to defend.")
         self.picking = True
         self.attack = True
-        self.bossattack = (attack_amount if attack_amount is not None else random.randrange(0, 2000, 100))
+        self.bossattack = (attack_amount if attack_amount is not None else random.randrange(DAMAGERNG[0], DAMAGERNG[1], 100))
 
     @bossadmin.command(name="defend")
     @app_commands.checks.has_any_role(*settings.root_role_ids, *settings.admin_role_ids)
@@ -357,23 +364,23 @@ class Boss(commands.GroupCog):
             return
         self.balls.append(ball)
         self.usersinround.append([int(interaction.user.id),self.round])
-        if ball.attack > 14000: #maximum and minimum atk and hp stats 
-            ballattack = 14000
+        if ball.attack > MAXSTATS[0]: #maximum and minimum atk and hp stats 
+            ballattack = MAXSTATS[0]
         elif ball.attack < 0:
             ballattack = 0
         else:
             ballattack = ball.attack
-        if ball.health > 14000:
-            ballhealth = 14000
+        if ball.health > MAXSTATS[1]:
+            ballhealth = MAXSTATS[1]
         elif ball.health < 0:
             ballhealth = 0
         else:
             ballhealth = ball.health
         messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot)}has been selected for this round, with {ballattack} ATK and {ballhealth} HP"
         if "✨" in messageforuser:
-            messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot)}has been selected for this round, with {ballattack}+1000 ATK and {ballhealth}+1000 HP"
-            ballhealth += 1000
-            ballattack += 1000
+            messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot)}has been selected for this round, with {ballattack}+{SHINYBUFFS[0]) ATK and {ballhealth}+{SHINYBUFFS[1]) HP"
+            ballhealth += SHINYBUFFS[1]
+            ballattack += SHINYBUFFS[0]
         else:
             pass
 
