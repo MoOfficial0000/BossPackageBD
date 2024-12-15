@@ -240,6 +240,7 @@ class Boss(commands.GroupCog):
         interaction: discord.Interaction,
         user: discord.User | None = None,
         user_id : str | None = None,
+        undisqualify : bool | None = False,
         ):
         """
         Disqualify a member from the boss
@@ -265,10 +266,29 @@ class Boss(commands.GroupCog):
                 return
         else:
             user_id = user.id
-
-        if int(user_id) not in self.users:
+        if int(user_id) in self.disqualified:
+            if undisqualify == True:
+                self.disqualified.remove(int(user_id))
+                await interaction.response.send_message(
+                    f"{user} has been removed from disqualification.\nUse `/boss admin hackjoin` to join the user back.", ephemeral=True
+                )
+            else:
+                await interaction.response.send_message(
+                    f"{user} has already been disqualified.\nSet `undisqualify` to `True` to remove a user from disqualification.", ephemeral=True
+                )
+        elif undisqualify == True:
             await interaction.response.send_message(
-                f"{user} is not in the Battle.", ephemeral=True
+                f"{user} has **not** been disqualified yet.", ephemeral=True
+            )
+        elif self.boss_enabled != True:
+            self.disqualified.append(int(user_id))
+            await interaction.response.send_message(
+                f"{user} will be disqualified from the next fight.", ephemeral=True
+            )
+        elif int(user_id) not in self.users:
+            self.disqualified.append(int(user_id))
+            await interaction.response.send_message(
+                f"{user} has been disqualified successfully.", ephemeral=True
             )
             return
         else:
