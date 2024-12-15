@@ -551,4 +551,56 @@ class Boss(commands.GroupCog):
             self.bot,
         )
 
+    @bossadmin.command(name="hackjoin")
+    @app_commands.checks.has_any_role(*settings.root_role_ids, *settings.admin_role_ids)
+    async def hackjoin(
+        self,
+        interaction: discord.Interaction,
+        user: discord.User | None = None,
+        user_id : str | None = None,
+        ):
+        """
+        Join a user to the boss battle.
+        """
+        if (user and user_id) or (not user and not user_id):
+            await interaction.response.send_message(
+                "You must provide either `user` or `user_id`.", ephemeral=True
+            )
+            return
+
+        if not user:
+            try:
+                user = await self.bot.fetch_user(int(user_id))  # type: ignore
+            except ValueError:
+                await interaction.response.send_message(
+                    "The user ID you gave is not valid.", ephemeral=True
+                )
+                return
+            except discord.NotFound:
+                await interaction.response.send_message(
+                    "The given user ID could not be found.", ephemeral=True
+                )
+                return
+        else:
+            user_id = user.id
+
+        if not self.boss_enabled:
+            return await interaction.response.send_message("Boss is disabled", ephemeral=True)
+        if [int(user_id), self.round] in self.usersinround:
+            return await interaction.response.send_message("This user is already in the boss battle.", ephemeral=True)
+        if int(user_id) in self.users:
+            return await interaction.response.send_message(
+                "This user is already in the boss battle.", ephemeral=True
+            )
+        self.users.append(user_id)
+        if user_id in self.disqualified:
+            self.disqualified.remove(user_id)
+        await interaction.response.send_message(
+            f"{user} has been hackjoined into the Boss Battle.", ephemeral=True
+        )
+        await log_action(
+            f"{user} has joined the `{self.bossball}` Boss Battle. [hackjoin by {await self.bot.fetch_user(int(interaction.user.id))}]",
+            self.bot,
+        )
+
 
