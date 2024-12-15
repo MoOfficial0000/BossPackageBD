@@ -531,14 +531,4 @@ class Boss(commands.GroupCog):
             self.bot,
         )
 
-    def test(self, interaction: discord.Interaction):
-        if [int(interaction.user.id),self.round] in self.usersinround:
-            return ("You have already joined the boss")
-        if self.round != 0 and interaction.user.id not in self.users:
-            return ("It is too late to join the boss, or you have died")
-        if interaction.user.id in self.users:
-            return ("You have already joined the boss")
-        self.users.append(interaction.user.id)
-        return ("You have joined the Boss Battle!")
-
 
