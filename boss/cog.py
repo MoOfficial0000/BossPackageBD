@@ -65,11 +65,14 @@ from ballsdex.core.models import (
 # 6. Step 3-5 is repeated until the boss' HP runs out, but you can end early with Step 7.
 # 7. /boss admin conclude ends the boss battle and rewards the winner, but you can choose to have *no* winner (ADMIN ONLY)
 
-SHINYBUFFS = [1000,1000] # Shiny Buffs
+SHINYBUFFS = [2000,2000] # Shiny Buffs
+CHRISTMASBUFFS = [500,500] # Shiny Buffs
+MYTHICBUFFS = [3000,3000] # Shiny Buffs
+BOSSBUFFS = [4000,4000] # Shiny Buffs
 # ATK, HP
-MAXSTATS = [5000,5000] # Max stats a card is limited to (before buffs)
+MAXSTATS = [10000,10000] # Max stats a card is limited to (before buffs)
 # ATK, HP
-DAMAGERNG = [0,2000] # Damage a boss can deal IF attack_amount has NOT been inputted in /boss admin attack.
+DAMAGERNG = [5000,8000] # Damage a boss can deal IF attack_amount has NOT been inputted in /boss admin attack.
 # Min Damage, Max Damage
 
 
@@ -378,12 +381,25 @@ class Boss(commands.GroupCog):
         else:
             ballhealth = ball.health
         messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot)} has been selected for this round, with {ballattack} ATK and {ballhealth} HP"
-        if "✨" in messageforuser:
-            messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot)} has been selected for this round, with {ballattack}+{SHINYBUFFS[0]) ATK and {ballhealth}+{SHINYBUFFS[1]) HP"
-            ballhealth += SHINYBUFFS[1]
-            ballattack += SHINYBUFFS[0]
-        else:
-            pass
+       if "✨" in messageforuser:
+    messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot)} has been selected for this round, with {ballattack}+{SHINYBUFFS[0]} ATK and {ballhealth}+{SHINYBUFFS[1]} HP"
+    ballhealth += SHINYBUFFS[1]
+    ballattack += SHINYBUFFS[0]
+elif "❄️" in messageforuser:
+    messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot)} has been selected for this round, with {ballattack}+{CHRISTMASBUFFS[0]} ATK and {ballhealth}+{CHRISTMASBUFFS[0]} HP"
+    ballhealth += CHRISTMASBUFFS[1]
+    ballattack += CHRISTMASBUFFS[0]
+elif "💫" in messageforuser:
+    messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot)} has been selected for this round, with {ballattack}+{MYTHICBUFFS[0]} ATK and {ballhealth}+{MYTHICBUFFS[0]} HP"
+    ballhealth += MYTHICBUFFS[1]
+    ballattack += MYTHICBUFFS[0]
+elif "⚔️" in messageforuser:
+    messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot)} has been selected for this round, with {ballattack}+{BOSSBUFFS[0]} ATK and {ballhealth}+{BOSSBUFFS[0]} HP"
+    ballhealth += BOSSBUFFS[1]
+    ballattack += BOSSBUFFS[0]
+else:
+    pass
+
 
         if not self.attack:
             self.bossHP -= ballattack
@@ -483,7 +499,7 @@ class Boss(commands.GroupCog):
             await interaction.response.send_message(
                 f"Boss successfully concluded", ephemeral=True
             )
-            await interaction.channel.send(f"# Boss has concluded {self.bot.get_emoji(self.bossball.emoji_id)}\nThe boss has won the Boss Battle!")
+            await interaction.channel.send(f"# Boss has concluded {self.bot.get_emoji(self.bossball.emoji_id)}\n💀 ᴛʜᴇ ʙᴏꜱꜱ ᴘʀᴏᴠᴇᴅ ᴜɴꜱᴛᴏᴘᴘᴀʙʟᴇ, ᴄʀᴜꜱʜɪɴɢ ᴀʟʟ ᴡʜᴏ ᴅᴀʀᴇᴅ ᴛᴏ ꜰᴀᴄᴇ ɪᴛ ᴀɴᴅ ꜱᴇᴄᴜʀɪɴɢ ɪᴛꜱ ꜰɪᴇʀᴄᴇ ᴅᴏᴍɪɴɪᴏɴ. 💀!")
             with open("totalstats.txt", "w") as file:
                 file.write(f"{total}{total2}")
             with open("totalstats.txt", "rb") as file:
@@ -517,7 +533,7 @@ class Boss(commands.GroupCog):
                 f"Boss successfully concluded", ephemeral=True
             )
             await interaction.channel.send(
-                f"# Boss has concluded {self.bot.get_emoji(self.bossball.emoji_id)}\n<@{bosswinner}> has won the Boss Battle!\n\n"
+                f"# Boss has concluded {self.bot.get_emoji(self.bossball.emoji_id)}\n👑 <@{bosswinner}>  ꜱᴛᴏᴏᴅ ᴛᴀʟʟ ᴀɢᴀɪɴꜱᴛ ᴏᴅᴅꜱ ᴀɴᴅ ᴄʟᴀɪᴍᴇᴅ ᴠɪᴄᴛᴏʀʏ ꜰʀᴏᴍ ᴀ ᴍɪɢʜᴛʏ ʙᴏꜱꜱ, ᴡʀɪᴛɪɴɢ ᴛʜᴇɪʀ ɴᴀᴍᴇ ɪɴ ʟᴇɢᴇɴᴅꜱ. 👑\n\n"
                 f"`Boss` `{self.bossball}` {settings.collectible_name} was successfully given.\n"
             )
             bosswinner_user = await self.bot.fetch_user(int(bosswinner))
