@@ -2,7 +2,7 @@
 name = "boss"
 version = "0.0.1"
 authors = [
-  { name="Mo Official", email="muminhassouna123@gmail.com" },
+  { name="Mo Official", email="moofficial420@gmail.com" },
 ]
 description = "Boss package for Ballsdex"
 requires-python = ">=3.12"
