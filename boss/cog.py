@@ -379,7 +379,7 @@ class Boss(commands.GroupCog):
             ballhealth = ball.health
         messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot)} has been selected for this round, with {ballattack} ATK and {ballhealth} HP"
         if "✨" in messageforuser:
-            messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot)} has been selected for this round, with {ballattack}+{SHINYBUFFS[0]) ATK and {ballhealth}+{SHINYBUFFS[1]} HP"
+            messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot)} has been selected for this round, with {ballattack}+{SHINYBUFFS[0]} ATK and {ballhealth}+{SHINYBUFFS[1]} HP"
             ballhealth += SHINYBUFFS[1]
             ballattack += SHINYBUFFS[0]
         else:
