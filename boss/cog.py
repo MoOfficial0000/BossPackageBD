@@ -464,16 +464,17 @@ class Boss(commands.GroupCog):
         """
         Ping all the alive players
         """
+        await interaction.response.defer(ephemeral=True, thinking=True)
         if len(self.users) == 0:
-            return await interaction.response.send_message("There are no users joined/remaining",ephemeral=True)
+            return await interaction.followup.send("There are no users joined/remaining",ephemeral=True)
         pingsmsg = "-#"
         for userid in self.users:
             pingsmsg = pingsmsg+" <@"+str(userid)+">"
         if len(pingsmsg) < 2000:
-            await interaction.response.send_message("Ping Successful",ephemeral=True)
+            await interaction.followup.send("Ping Successful",ephemeral=True)
             await interaction.channel.send(pingsmsg)
         else:
-            await interaction.response.send_message("Message too long, exceeds 2000 character limit",ephemeral=True)
+            await interaction.followup.send("Message too long, exceeds 2000 character limit",ephemeral=True)
             
 
     @bossadmin.command(name="conclude")
