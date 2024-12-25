@@ -470,7 +470,7 @@ class Boss(commands.GroupCog):
         for userid in self.users:
             pingsmsg = pingsmsg+" <@"+str(userid)+">"
         if len(pingsmsg) < 2000:
-            await interaction.response.send_message("Ping Successful")
+            await interaction.response.send_message("Ping Successful",ephemeral=True)
             await interaction.channel.send(pingsmsg)
         else:
             await interaction.response.send_message("Message too long, exceeds 2000 character limit")
