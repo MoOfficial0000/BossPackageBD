@@ -290,7 +290,7 @@ class Boss(commands.GroupCog):
         See current stats of the boss
         """
         with open("stats.txt","w") as file:
-            file.write(f"Boss:{self.bossball}\nCurrentValue:{self.currentvalue}\nUsers:{self.users}\n\nUsersDamage:{self.usersdamage}\n\nBalls:{self.balls}\n\nUsersInRound:{self.usersinround}")
+            file.write(f"Boss:{self.bossball}\nCurrentValue:\n\n{self.currentvalue}\nUsers:{self.users}\nDisqualifiedUsers:{self.disqualified}\nUsersDamage:{self.usersdamage}\nBalls:{self.balls}\nUsersInRound:{self.usersinround}")
         with open("stats.txt","rb") as file:
             return await interaction.response.send_message(file=discord.File(file,"stats.txt"), ephemeral=True)
 
