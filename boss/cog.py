@@ -16,8 +16,7 @@ from ballsdex.core.utils.transformers import BallEnabledTransform
 from ballsdex.core.utils.transformers import SpecialTransform, BallTransform
 from ballsdex.core.utils.transformers import SpecialEnabledTransform
 from ballsdex.core.utils.paginator import FieldPageSource, Pages
-from ballsdex.core.utils.logging import log_action
-from ballsdex.settings import settings
+from ballsdex.core.bot import BallsDexBot
 
 if TYPE_CHECKING:
     from ballsdex.core.bot import BallsDexBot
@@ -72,6 +71,22 @@ MAXSTATS = [5000,5000] # Max stats a card is limited to (before buffs)
 DAMAGERNG = [0,2000] # Damage a boss can deal IF attack_amount has NOT been inputted in /boss admin attack.
 # Min Damage, Max Damage
 
+LOGCHANNEL = settings.log_channel
+#Change this if you want to a different channel for boss logs
+#e.g.
+#LOGCHANNEL = 1234567890987654321
+async def log_action(message: str, bot: BallsDexBot, console_log: bool = False):
+    if LOGCHANNEL:
+        channel = bot.get_channel(LOGCHANNEL)
+        if not channel:
+            log.warning(f"Channel {LOGCHANNEL} not found")
+            return
+        if not isinstance(channel, discord.TextChannel):
+            log.warning(f"Channel {channel.name} is not a text channel")  # type: ignore
+            return
+        await channel.send(message)
+    if console_log:
+        log.info(message)
 
 @app_commands.guilds(*settings.admin_guild_ids)
 class Boss(commands.GroupCog):
