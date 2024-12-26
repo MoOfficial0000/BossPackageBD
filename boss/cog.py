@@ -366,7 +366,7 @@ class Boss(commands.GroupCog):
     async def select(
         self,
         interaction: discord.Interaction,
-        countryballball: BallInstanceTransform,
+        countryball: BallInstanceTransform,
         special: SpecialEnabledTransform | None = None,
         shiny: bool | None = None,
     ):
