@@ -11,10 +11,9 @@ from typing import TYPE_CHECKING, Optional, cast
 from discord.ui import Button, View
 
 from ballsdex.settings import settings
-from ballsdex.core.utils.transformers import BallInstanceTransform
+from ballsdex.core.utils.transformers import BallInstanceTransform, SpecialEnabledTransform
 from ballsdex.core.utils.transformers import BallEnabledTransform
 from ballsdex.core.utils.transformers import SpecialTransform, BallTransform
-from ballsdex.core.utils.transformers import SpecialEnabledTransform
 from ballsdex.core.utils.paginator import FieldPageSource, Pages
 from ballsdex.core.bot import BallsDexBot
 
@@ -39,42 +38,36 @@ from ballsdex.core.models import (
 
 # IMPORTANT NOTES, READ BEFORE USING
 # 1. YOU MUST HAVE A SPECIAL CALLED "Boss" IN YOUR DEX, THIS IS FOR REWARDING THE WINNER.
-#    MAKE IT SO THE SPECIAL'S END DATE IS 2124 OR SOMETHING. RARITY MUST BE 0
+#    MAKE IT SO THE SPECIAL'S END DATE IS BEFORE TODAY'S DATE
 # 2. ONLY USE A COUNTRYBALL AS A BOSS in /boss start IF IT HAS BOTH THE COLLECTIBLE AND WILD CARDS STORED,
 #    OTHERWISE THIS WILL RESULT TO AN ERROR.
 #    Sometimes, you might create a non-spawnable ball using /admin balls create command, if that's the case
 #    there's a chance you may have not selected a wild card as it isn't required.
 #    Cards without wild cards do not work as a boss, as again, this will result in an error.
 #    If you are using a ball made from the admin panel for the boss, then it's fine, since admin panel requires wild card.
-# 3. You may change the shiny buffs below to suit your dex better it's defaulted at 1000 HP & ATK Bonus
+# 3. You may change the shiny buffs below to suit your dex better, it's defaulted at 1000 HP & ATK Bonus
 # 4. Please report all bugs to user @moofficial on discord
-# 5. Make sure to add "boss" to PACKAGES at ballsdex/core/bot.py (if old bd version)
-#    OR add balldex.packages.boss to config.yml (if new bd version)
-# 6. Finally, add the boss folder to ballsdex/packages folder
 
 # HOW TO PLAY
 # Some commands can only be used by admins, these control the boss actions.
-# 1. Start the boss using /boss admin start command. (ADMINS ONLY)
-#    Choose a countryball to be the boss (required). Choose HP (Required)
+# 1. Start the boss using /boss start command. (ADMINS ONLY)
+#    Choose a countryball to be the boss (required). Choose HP (Optional, Defaulted at 40000)
 # 2. Players can join using /boss join command.
-# 3. Start a round using /boss admin defend or /boss admin attack.(ADMINS ONLY)
-#    With /boss admin attack you can choose how much attack the boss deals (Optional, Defaulted to RNG from default 0 to 2000, can be changed below)
+# 3. Start a round using /boss defend or /boss attack.(ADMINS ONLY)
+#    With /boss attack you can choose how much attack the boss deals (Optional, Defaulted to RNG from 0 to 2000)
 # 4. Players now choose an item to use against the boss using /boss select
-# 5. /boss admin end_round ends the current round and displays user permformance about the round (ADMIN ONLY)
+# 5. /boss end_round ends the current round and displays user permformance about the round (ADMIN ONLY)
 # 6. Step 3-5 is repeated until the boss' HP runs out, but you can end early with Step 7.
-# 7. /boss admin conclude ends the boss battle and rewards the winner, but you can choose to have *no* winner (ADMIN ONLY)
+# 7. /boss_conclude ends the boss battle and rewards the winner, but you can choose to *not* reward the winner (ADMIN ONLY)
 
-SHINYBUFFS = [1000,1000] # Shiny Buffs
-# ATK, HP
-MAXSTATS = [5000,5000] # Max stats a card is limited to (before buffs)
-# ATK, HP
-DAMAGERNG = [0,2000] # Damage a boss can deal IF attack_amount has NOT been inputted in /boss admin attack.
-# Min Damage, Max Damage
-
-LOGCHANNEL = settings.log_channel
+if settings.bot_name == "dragonballdex":
+    LOGCHANNEL = 1321913349125967896
+else:
+    LOGCHANNEL = 1321918255274921994
 #Change this if you want to a different channel for boss logs
 #e.g.
 #LOGCHANNEL = 1234567890987654321
+
 async def log_action(message: str, bot: BallsDexBot, console_log: bool = False):
     if LOGCHANNEL:
         channel = bot.get_channel(LOGCHANNEL)
@@ -129,6 +122,13 @@ class Boss(commands.GroupCog):
         """
         if self.boss_enabled == True:
             return await interaction.response.send_message(f"There is already an ongoing boss battle", ephemeral=True)
+        if ball.enabled == False:
+            disabledperm = False
+            for i in settings.root_role_ids:
+                if interaction.guild.get_role(i) in interaction.user.roles:
+                    disabledperm = True
+            if disabledperm == False:
+                return await interaction.response.send_message(f"You do not have permission to boss start this {settings.collectible_name}", ephemeral=True)
         self.bossHP = hp_amount
         def generate_random_name():
             source = string.ascii_uppercase + string.ascii_lowercase + string.ascii_letters
@@ -143,7 +143,7 @@ class Boss(commands.GroupCog):
         await interaction.response.send_message(
             f"Boss successfully started", ephemeral=True
         )
-        await interaction.channel.send((f"# The boss battle has begun! {self.bot.get_emoji(ball.emoji_id)}\n-# HP: {self.bossHP}"),file=file,)
+        await interaction.channel.send((f"# The boss battle has begun! {self.bot.get_emoji(ball.emoji_id)}\n-# HP: {self.bossHP} Credits: nobodyboy (Card Art)"),file=file,)
         await interaction.channel.send("> Use `/boss join` to join the battle!")
         if ball != None:
             self.boss_enabled = True
@@ -160,6 +160,7 @@ class Boss(commands.GroupCog):
             else:
                 self.bosswilda.append(attack_image)
                 self.bosswilda.append(2)
+
     @bossadmin.command(name="attack")
     @app_commands.checks.has_any_role(*settings.root_role_ids, *settings.admin_role_ids)
     async def attack(self, interaction: discord.Interaction, attack_amount: int | None = None):
@@ -195,7 +196,7 @@ class Boss(commands.GroupCog):
         await interaction.channel.send(f"> Use `/boss select` to select your defending {settings.collectible_name}.\n> Your selected {settings.collectible_name}'s HP will be used to defend.")
         self.picking = True
         self.attack = True
-        self.bossattack = (attack_amount if attack_amount is not None else random.randrange(DAMAGERNG[0], DAMAGERNG[1], 100))
+        self.bossattack = (attack_amount if attack_amount is not None else random.randrange(0, 10000, 500))
 
     @bossadmin.command(name="defend")
     @app_commands.checks.has_any_role(*settings.root_role_ids, *settings.admin_role_ids)
@@ -203,6 +204,7 @@ class Boss(commands.GroupCog):
         """
         Start a round where the Boss Defends
         """
+        
         if not self.boss_enabled:
             return await interaction.response.send_message("Boss is disabled", ephemeral=True)
         if self.picking:
@@ -290,7 +292,7 @@ class Boss(commands.GroupCog):
         See current stats of the boss
         """
         with open("stats.txt","w") as file:
-            file.write(f"Boss:{self.bossball}\nCurrentValue:{self.currentvalue}\nUsers:{self.users}\n\nUsersDamage:{self.usersdamage}\n\nBalls:{self.balls}\n\nUsersInRound:{self.usersinround}")
+            file.write(f"Boss:{self.bossball}\nCurrentValue:\n\n{self.currentvalue}\nUsers:{self.users}\nDisqualifiedUsers:{self.disqualified}\nUsersDamage:{self.usersdamage}\nBalls:{self.balls}\nUsersInRound:{self.usersinround}")
         with open("stats.txt","rb") as file:
             return await interaction.response.send_message(file=discord.File(file,"stats.txt"), ephemeral=True)
 
@@ -360,7 +362,7 @@ class Boss(commands.GroupCog):
             )
             return
 
-
+    
     @app_commands.command()
     async def select(
         self,
@@ -406,26 +408,69 @@ class Boss(commands.GroupCog):
             return
         self.balls.append(ball)
         self.usersinround.append([int(interaction.user.id),self.round])
-        if ball.attack > MAXSTATS[0]: #maximum and minimum atk and hp stats 
-            ballattack = MAXSTATS[0]
+        if settings.bot_name == "dragonballdex":
+            maxvalue = 180000
+            shinyvalue = 20000
+            mythicalvalue = 50000
+            bossvalue = 30000
+            eventvalue1 = 10000
+            eventvalue2 = 7000
+        else:
+            maxvalue = 14000
+            shinyvalue = 5000
+            mythicalvalue = 12000
+            bossvalue = 6000
+            eventvalue1 = 3000
+            eventvalue2 = 2000
+        if ball.attack > maxvalue:
+            ballattack = maxvalue
         elif ball.attack < 0:
             ballattack = 0
         else:
             ballattack = ball.attack
-        if ball.health > MAXSTATS[1]:
-            ballhealth = MAXSTATS[1]
+        if ball.health > maxvalue:
+            ballhealth = maxvalue
         elif ball.health < 0:
             ballhealth = 0
         else:
             ballhealth = ball.health
+
         messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot)} has been selected for this round, with {ballattack} ATK and {ballhealth} HP"
         if "✨" in messageforuser:
-            messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot)} has been selected for this round, with {ballattack}+{SHINYBUFFS[0]} ATK and {ballhealth}+{SHINYBUFFS[1]} HP"
-            ballhealth += SHINYBUFFS[1]
-            ballattack += SHINYBUFFS[0]
+            messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot)} has been selected for this round, with {ballattack}+{shinyvalue} ATK and {ballhealth}+{shinyvalue} HP"
+            ballhealth += shinyvalue
+            ballattack += shinyvalue
+        elif "🌌" in messageforuser:
+            messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot)} has been selected for this round, with {ballattack}+{mythicalvalue} ATK and {ballhealth}+{mythicalvalue} HP"
+            ballhealth += mythicalvalue
+            ballattack += mythicalvalue
+        elif "🟨" in messageforuser or "⬜" in messageforuser:
+            messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot)} has been selected for this round, with {ballattack}+1500 ATK and {ballhealth}+1500 HP"
+            ballhealth += 1500
+            ballattack += 1500
+        elif "⬛" in messageforuser:
+            messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot)} has been selected for this round, with {ballattack}+1250 ATK and {ballhealth}+1250 HP"
+            ballhealth += 1250
+            ballattack += 1250
+        elif "🟦" in messageforuser or "🟥" in messageforuser or "🟩" in messageforuser or "💛" in messageforuser or "🩵" in messageforuser or "🟪" in messageforuser or "💚" in messageforuser or "🟧" in messageforuser or "🩶" in messageforuser or "🟫" in messageforuser or "🩷" in messageforuser:
+            messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot)} has been selected for this round, with {ballattack}+1000 ATK and {ballhealth}+1000 HP"
+            ballhealth += 1000
+            ballattack += 1000
+        elif "🚀" in messageforuser or "🎩" in messageforuser or "🐑" in messageforuser or "🔮" in messageforuser or "🇺🇸" in messageforuser :
+            messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot)} has been selected for this round, with {ballattack}+{eventvalue1} ATK and {ballhealth}+{eventvalue1} HP"
+            ballhealth += eventvalue1
+            ballattack += eventvalue1
+        elif "☀" in messageforuser or "☀️" in messageforuser or "🎃" in messageforuser or "🔵" in messageforuser or "🔴" in messageforuser or "🐉" in messageforuser or "🎄" in messageforuser:
+            messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot)} has been selected for this round, with {ballattack}+{eventvalue2} ATK and {ballhealth}+{eventvalue2} HP"
+            ballhealth += eventvalue2
+            ballattack += eventvalue2
+        elif "⚔️" in messageforuser or "⚔" in messageforuser or "🏆" in messageforuser:
+            messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot)} has been selected for this round, with {ballattack}+{bossvalue} ATK and {ballhealth}+{bossvalue} HP"
+            ballhealth += bossvalue
+            ballattack += bossvalue
         else:
             pass
-
+            
         if not self.attack:
             self.bossHP -= ballattack
             self.usersdamage.append([int(interaction.user.id),ballattack,ball.description(short=True, include_emoji=True, bot=self.bot)])
@@ -472,6 +517,7 @@ class Boss(commands.GroupCog):
                 await interaction.response.send_message(f"You have dealt {ongoingfull} damage and have been disqualified.\n{ongoingvalue}",ephemeral=True)
             else:
                 await interaction.response.send_message(f"You have dealt {ongoingfull} damage and you are now dead.\n{ongoingvalue}",ephemeral=True)
+
 
     @bossadmin.command(name="ping")
     @app_commands.checks.has_any_role(*settings.root_role_ids, *settings.admin_role_ids)
