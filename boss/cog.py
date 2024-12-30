@@ -390,12 +390,12 @@ class Boss(commands.GroupCog):
         ball = countryball
         if [int(interaction.user.id),self.round] in self.usersinround:
             return await interaction.followup.send(
-                f"You have already selected an {settings.collectible_name}", ephemeral=True
+                f"You have already selected a {settings.collectible_name}", ephemeral=True
             )
         if not self.boss_enabled:
             return await interaction.followup.send("Boss is disabled", ephemeral=True)
         if not self.picking:
-            return await interaction.followup.send(f"It is not yet time to select an {settings.collectible_name}", ephemeral=True)
+            return await interaction.followup.send(f"It is not yet time to select a {settings.collectible_name}", ephemeral=True)
         if interaction.user.id not in self.users:
             return await interaction.followup.send(
                 "You did not join, or you're dead/disqualified.", ephemeral=True
