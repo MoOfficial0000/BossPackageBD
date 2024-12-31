@@ -111,6 +111,7 @@ class Boss(commands.GroupCog):
         self.bosswildd = []
         self.bosswilda = []
         self.disqualified = []
+        self.lasthitter = 0
 
     bossadmin = app_commands.Group(name="admin", description="admin commands for boss")
 
@@ -437,6 +438,7 @@ class Boss(commands.GroupCog):
             self.bossHP -= ballattack
             self.usersdamage.append([int(interaction.user.id),ballattack,ball.description(short=True, include_emoji=True, bot=self.bot)])
             self.currentvalue += (str(interaction.user)+"'s "+str(ball.description(short=True, bot=self.bot))+" has dealt "+(str(ballattack))+" damage!\n")
+            self.lasthitter = int(interaction.user.id)
         else:
             if self.bossattack >= ballhealth:
                 self.users.remove(interaction.user.id)
@@ -514,6 +516,7 @@ class Boss(commands.GroupCog):
         winner=[
             app_commands.Choice(name="Random", value="RNG"),
             app_commands.Choice(name="Most Damage", value="DMG"),
+            app_commands.Choice(name="Last Hitter", value="LAST"),
             app_commands.Choice(name="No Winner", value="None"),
         ]
     )
@@ -552,6 +555,8 @@ class Boss(commands.GroupCog):
                 if totalnum[k][1] > highest:
                     highest = totalnum[k][1]
                     bosswinner = totalnum[k][0]
+        elif winner == "LAST":
+            bosswinner = self.lasthitter
         else:
             if len(totalnum) != 0:
                 bosswinner = totalnum[random.randint(0,len(totalnum)-1)][0]
@@ -578,6 +583,7 @@ class Boss(commands.GroupCog):
             self.bosswildd = []
             self.bosswilda = []
             self.disqualified = []
+            self.lasthitter = 0
             return
         if winner != "None":
             player, created = await Player.get_or_create(discord_id=bosswinner)
@@ -628,6 +634,7 @@ class Boss(commands.GroupCog):
         self.bosswildd = []
         self.bosswilda = []
         self.disqualified = []
+        self.lasthitter = 0
 
     @app_commands.command()
     async def join(self, interaction: discord.Interaction):
