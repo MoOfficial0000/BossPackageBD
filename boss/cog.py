@@ -373,7 +373,6 @@ class Boss(commands.GroupCog):
         interaction: discord.Interaction,
         countryball: BallInstanceTransform,
         special: SpecialEnabledTransform | None = None,
-        shiny: bool | None = None,
     ):
         """
         Select countryball to use against the boss.
@@ -384,8 +383,6 @@ class Boss(commands.GroupCog):
             The countryball you want to select
         special: Special
             Filter the results of autocompletion to a special event. Ignored afterwards.
-        shiny: bool
-            Filter the results of autocompletion to shinies. Ignored afterwards.
         """
         await interaction.response.defer(ephemeral=True, thinking=True)
         ball = countryball
@@ -591,7 +588,6 @@ class Boss(commands.GroupCog):
             instance = await BallInstance.create(
                 ball=self.bossball,
                 player=player,
-                shiny=False,
                 special=special,
                 attack_bonus=0,
                 health_bonus=0,
@@ -607,8 +603,8 @@ class Boss(commands.GroupCog):
 
             await log_action(
                 f"`BOSS REWARDS` gave {settings.collectible_name} {self.bossball.country} to {bosswinner_user}. "
-                f"Special=Boss ATK=0 "
-                f"HP=0 shiny=None",
+                f"Special=Boss"
+                f"ATK=0 HP=0",
                 self.bot,
             )
         else:
