@@ -521,6 +521,8 @@ class Boss(commands.GroupCog):
         """
         Finish the boss, conclude the Winner
         """
+        if not self.boss_enabled:
+            return await interaction.response.send_message("Boss is disabled.")
         await interaction.response.defer(ephemeral=True, thinking=True)
         self.picking = False
         self.boss_enabled = False
