@@ -524,6 +524,10 @@ class Boss(commands.GroupCog):
         if not self.boss_enabled:
             return await interaction.response.send_message("Boss is disabled.", ephemeral=True)
         await interaction.response.defer(ephemeral=True, thinking=True)
+        if self.lasthitter not in self.users and winner == "LAST":
+            return await interaction.followup.send(
+                f"The last hitter is dead or disqualified.", ephemeral=True
+            )
         self.picking = False
         self.boss_enabled = False
         test = self.usersdamage
