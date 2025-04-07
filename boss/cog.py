@@ -185,7 +185,6 @@ class Boss(commands.GroupCog):
         )
         message = await interaction.channel.send((f"# The boss battle has begun! {self.bot.get_emoji(ball.emoji_id)}\n-# HP: {self.bossHP}"),file=file,view=view)
         view.message = message
-        await interaction.channel.send("> Use `/boss join` to join the battle!")
         if ball != None:
             self.boss_enabled = True
             self.bossball = ball
