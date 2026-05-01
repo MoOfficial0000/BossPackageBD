@@ -1106,8 +1106,9 @@ Damage Records: {len(self.usersdamage)}"""
                     await self._send_layout_message(
                         channel,
                         [
-                            "Boss special not found.",
-                            "Please ensure there's a special named `Boss` in the database.",
+                            "**Boss Special Not Found**",
+                            "Contact the administrators to ensure there's a special named `Boss` in the database, "
+                            "most specifically in the **Specials** section of the admin panel.",
                         ],
                     )
                 return False
