@@ -3,6 +3,7 @@ from __future__ import annotations
 import io
 import logging
 import random
+from collections import defaultdict
 from typing import TYPE_CHECKING, Any
 
 import discord
@@ -349,9 +350,25 @@ class Boss(commands.GroupCog, name="boss"):
             )
             return
 
+        if hp_amount <= 0:
+            await interaction.followup.send(
+                "Boss HP must be greater than 0.", ephemeral=True
+            )
+            return
+
         # Ball is already provided by BallTransform
 
         try:
+            boss_card = self._get_required_card(
+                ball,
+                "collection_card",
+                "The selected boss is missing a collectible card.",
+            )
+            self._get_required_card(
+                ball,
+                "wild_card",
+                "The selected boss is missing a wild card.",
+            )
             # Follow original BossPackageBD pattern - only set HP and store ball
             self.bossball = ball
             self.bossHP = hp_amount
@@ -369,8 +386,8 @@ class Boss(commands.GroupCog, name="boss"):
             )
 
             # Prepare boss image file
-            extension = ball.collection_card.name.split(".")[-1]
-            file_location = str(ball.collection_card.path)
+            extension = boss_card.name.split(".")[-1]
+            file_location = str(boss_card.path)
             file = discord.File(file_location, filename=f"boss.{extension}")
 
             # Send announcement message with join button and boss image
@@ -423,6 +440,12 @@ class Boss(commands.GroupCog, name="boss"):
 
         if not ball.tradeable:
             await interaction.followup.send("You cannot use this ball.", ephemeral=True)
+            return
+
+        if not self._ball_belongs_to_user(ball, interaction.user.id):
+            await interaction.followup.send(
+                "You can only select a ball that belongs to you.", ephemeral=True
+            )
             return
 
         if ball in self.balls:
@@ -547,42 +570,33 @@ class Boss(commands.GroupCog, name="boss"):
         self.picking = False
         self.boss_enabled = False
 
-        # Calculate total damage per player (following inspirational code pattern)
-        test = self.usersdamage
-        test2 = []
-        total = ""
-        total2 = ""
-        totalnum = []
+        damage_totals: defaultdict[int, int] = defaultdict(int)
+        for user_id, damage, _ball_desc in self.usersdamage:
+            damage_totals[int(user_id)] += int(damage)
 
-        for i in range(len(test)):
-            if test[i][0] not in test2:
-                temp = 0
-                tempvalue = test[i][0]
-                test2.append(tempvalue)
-                for j in range(len(test)):
-                    if test[j][0] == tempvalue:
-                        temp += test[j][1]
-                if test[i][0] in self.users:
-                    user = await self.bot.fetch_user(int(tempvalue))
-                    total += f"{user} has dealt a total of {temp} damage!\n"
-                    totalnum.append([tempvalue, temp])
-                else:
-                    user = await self.bot.fetch_user(int(tempvalue))
-                    total2 += f"[Dead/Disqualified] {user} has dealt a total of {temp} damage!\n"
+        alive_totals: list[tuple[int, int]] = []
+        eliminated_totals: list[tuple[int, int]] = []
+        for user_id, total_damage in damage_totals.items():
+            if user_id in self.users:
+                alive_totals.append((user_id, total_damage))
+            else:
+                eliminated_totals.append((user_id, total_damage))
+
+        total = await self._format_damage_totals(alive_totals)
+        total2 = await self._format_damage_totals(
+            eliminated_totals, prefix="[Dead/Disqualified] "
+        )
 
         # Determine winner based on selection
         bosswinner = 0
-        highest = 0
         if winner == "DMG":
-            for k in range(len(totalnum)):
-                if totalnum[k][1] > highest:
-                    highest = totalnum[k][1]
-                    bosswinner = totalnum[k][0]
+            if alive_totals:
+                bosswinner = max(alive_totals, key=lambda item: item[1])[0]
         elif winner == "LAST":
             bosswinner = self.lasthitter
         elif winner == "RNG":
-            if len(totalnum) != 0:
-                bosswinner = totalnum[random.randint(0, len(totalnum) - 1)][0]
+            if alive_totals:
+                bosswinner = random.choice(alive_totals)[0]
 
         # Create totalstats.txt file
         stats_content = f"{total}{total2}"
@@ -594,19 +608,33 @@ class Boss(commands.GroupCog, name="boss"):
             await interaction.followup.send(
                 "Boss successfully concluded", ephemeral=True
             )
-            await interaction.channel.send(
-                f"# Boss has concluded {self.bot.get_emoji(self.bossball.emoji_id) if self.bossball else ''}\nThe boss has won the Boss Battle!"
+            await self._send_layout_message(
+                interaction.channel,
+                [
+                    f"# Boss has concluded {self._boss_emoji()}",
+                    "The boss has won the Boss Battle!",
+                ],
             )
-            await interaction.channel.send(file=stats_file)
+            if interaction.channel is not None:
+                await interaction.channel.send(file=stats_file)
 
             # Reset all battle state
             self._reset_battle_state()
             return
 
         # Reward the winner
-        await self._reward_winner(bosswinner, channel=interaction.channel)
+        reward_granted = await self._reward_winner(
+            bosswinner, channel=interaction.channel
+        )
+        if not reward_granted:
+            await interaction.followup.send(
+                "Boss conclusion failed while granting the reward.", ephemeral=True
+            )
+            self._reset_battle_state()
+            return
         await interaction.followup.send("Boss successfully concluded", ephemeral=True)
-        await interaction.channel.send(file=stats_file)
+        if interaction.channel is not None:
+            await interaction.channel.send(file=stats_file)
 
         # Reset battle state
         self._reset_battle_state()
@@ -724,10 +752,19 @@ class Boss(commands.GroupCog, name="boss"):
 
         await interaction.followup.send("Round successfully started", ephemeral=True)
 
-        # Prepare boss image file for attack phase
-        extension = self.bossball.wild_card.name.split(".")[-1]
-        file_location = str(self.bossball.wild_card.path)
-        file = discord.File(file_location, filename=f"boss.{extension}")
+        try:
+            boss_wild = self._get_required_card(
+                self.bossball,
+                "wild_card",
+                "The active boss is missing a wild card and cannot start an attack round.",
+            )
+            extension = boss_wild.name.split(".")[-1]
+            file_location = str(boss_wild.path)
+            file = discord.File(file_location, filename=f"boss.{extension}")
+        except ValueError as error:
+            await interaction.followup.send(str(error), ephemeral=True)
+            self.round -= 1
+            return
 
         await self._send_layout_message(
             interaction.channel,
@@ -771,10 +808,19 @@ class Boss(commands.GroupCog, name="boss"):
 
         await interaction.followup.send("Round successfully started", ephemeral=True)
 
-        # Prepare boss image file for defend phase
-        extension = self.bossball.wild_card.name.split(".")[-1]
-        file_location = str(self.bossball.wild_card.path)
-        file = discord.File(file_location, filename=f"boss.{extension}")
+        try:
+            boss_wild = self._get_required_card(
+                self.bossball,
+                "wild_card",
+                "The active boss is missing a wild card and cannot start a defend round.",
+            )
+            extension = boss_wild.name.split(".")[-1]
+            file_location = str(boss_wild.path)
+            file = discord.File(file_location, filename=f"boss.{extension}")
+        except ValueError as error:
+            await interaction.followup.send(str(error), ephemeral=True)
+            self.round -= 1
+            return
 
         await self._send_layout_message(
             interaction.channel,
@@ -998,9 +1044,16 @@ Damage Records: {len(self.usersdamage)}"""
         if winner_id:
             await self._reward_winner(winner_id)
 
-    async def _reward_winner(self, bosswinner: int, channel=None):
+    async def _reward_winner(self, bosswinner: int, channel=None) -> bool:
         """Reward the winner with a Boss special"""
         try:
+            if self.bossball is None:
+                if channel:
+                    await self._send_layout_message(
+                        channel, ["No active boss was available to reward from."]
+                    )
+                return False
+
             boss_special = None
 
             for special in specials.values():
@@ -1036,6 +1089,7 @@ Damage Records: {len(self.usersdamage)}"""
                             f"`Boss` `{self.bossball}` {settings.collectible_name} was successfully given.",
                         ],
                     )
+                return True
             else:
                 if channel:
                     await self._send_layout_message(
@@ -1045,15 +1099,18 @@ Damage Records: {len(self.usersdamage)}"""
                             "Please ensure there's a special named `Boss` in the database.",
                         ],
                     )
+                return False
         except Exception as e:
             log.error(f"Error rewarding winner: {e}")
             if channel:
                 await self._send_layout_message(
                     channel, [f"Error rewarding winner: {e}"]
                 )
+            return False
 
     def _reset_battle_state(self):
         """Reset all boss battle state variables"""
+        self.boss_enabled = False
         self.round = 0
         self.balls = []
         self.users = []
@@ -1070,6 +1127,28 @@ Damage Records: {len(self.usersdamage)}"""
     async def _log_action(self, message: str):
         """Log boss actions to console and webhook (BallsDex V3 pattern)"""
         log.info(f"Boss: {message}", extra={"webhook": True})
+
+    def _get_required_card(self, ball: Any, attribute: str, error_message: str) -> Any:
+        card = getattr(ball, attribute, None)
+        card_path = getattr(card, "path", None)
+        card_name = getattr(card, "name", None)
+        if card is None or card_path is None or card_name is None:
+            raise ValueError(error_message)
+        return card
+
+    def _ball_belongs_to_user(self, ball: Any, discord_id: int) -> bool:
+        player = getattr(ball, "player", None)
+        player_discord_id = getattr(player, "discord_id", None)
+        return player_discord_id == discord_id
+
+    async def _format_damage_totals(
+        self, totals: list[tuple[int, int]], *, prefix: str = ""
+    ) -> str:
+        output = ""
+        for user_id, total_damage in totals:
+            user = await self.bot.fetch_user(user_id)
+            output += f"{prefix}{user} has dealt a total of {total_damage} damage!\n"
+        return output
 
     def _boss_emoji(self) -> str:
         if self.bossball is None:
