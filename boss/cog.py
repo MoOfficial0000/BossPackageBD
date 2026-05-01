@@ -155,6 +155,9 @@ class BossBattle(models.Model):
     def __str__(self):
         return f"Boss Battle: {self.ball_instance.ball.country} ({self.current_hp}/{self.max_hp} HP)"
 
+    class Meta:
+        app_label = "boss"
+
 
 class BossBattleParticipant(models.Model):
     """Players participating in boss battles"""
@@ -177,6 +180,7 @@ class BossBattleParticipant(models.Model):
     )
 
     class Meta:
+        app_label = "boss"
         unique_together = ["boss_battle", "player"]
 
     def __str__(self):
@@ -203,6 +207,7 @@ class BossBattleRound(models.Model):
     )
 
     class Meta:
+        app_label = "boss"
         unique_together = ["boss_battle", "round"]
         ordering = ["round"]
 
@@ -248,6 +253,9 @@ class BossRoundAction(models.Model):
     def __str__(self):
         return f"Player {self.participant.player.discord_id} - {self.action_type} ({self.damage_dealt} dmg)"
 
+    class Meta:
+        app_label = "boss"
+
 
 class BossBattleReward(models.Model):
     """Rewards given for boss battles"""
@@ -276,6 +284,9 @@ class BossBattleReward(models.Model):
 
     def __str__(self):
         return f"Reward for {self.boss_battle} - Winner: {self.winner}"
+
+    class Meta:
+        app_label = "boss"
 
 
 class Boss(commands.GroupCog, name="boss"):
