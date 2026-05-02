@@ -6,8 +6,10 @@ if TYPE_CHECKING:
 
 log = logging.getLogger("ballsdex.packages.boss")
 
+
 async def setup(bot: "BallsDexBot"):
     log.info("Loading Boss package...")
     from .cog import Boss
+
     await bot.add_cog(Boss(bot))
     log.info("Boss package loaded successfully!")

@@ -5,7 +5,7 @@ Boss battle system for **BallsDex V3**. Players battle against powerful boss ene
 ## Commands
 
 | Command | Description |
-|---|---|
+| ------- | ----------- |
 | `/boss admin_start` | Start a boss battle with the specified ball and HP. Choose a countryball to be the boss (required). Choose HP (Required) |
 | `/boss select` | Select countryball to use against the boss. Players choose an item to use against the boss using this command |
 | `/boss admin_attack` | Start a round where the Boss Attacks. With this command you can choose how much attack the boss deals (Optional, Defaulted to RNG from default 0 to 2000, can be changed in code) |

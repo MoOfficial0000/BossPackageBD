@@ -7,9 +7,7 @@ name = "ballsdex-boss"
 version = "1.0.0"
 description = "Boss package for Ballsdex V3"
 license = "MIT"
-authors = [
-  { name="Mo Official", email="moofficial420@gmail.com" },
-]
+authors = [{ name = "Mo Official", email = "moofficial420@gmail.com" }]
 requires-python = ">=3.12"
 readme = "README.md"
 dependencies = []
