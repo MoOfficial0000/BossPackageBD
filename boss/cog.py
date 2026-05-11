@@ -153,7 +153,7 @@ class Boss(commands.GroupCog):
     async def start(
         self,
         interaction: discord.Interaction,
-        countryball: BallTransform,
+        countryball: BallEnabledTransform,
         hp_amount: int,
         start_image: discord.Attachment | None = None,
         defend_image: discord.Attachment | None = None,
