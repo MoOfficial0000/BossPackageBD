@@ -1,0 +1,40 @@
+# BallsDex V2 Boss Package
+
+Boss battle system for **BallsDex V2**. Players battle against powerful boss enemies using their countryballs.
+
+## Commands
+
+| Command | Description |
+|---|---|
+| `/boss select` | Select countryball to use against the boss. Players choose an item to use against the boss using this command |
+| `/boss ongoing` | Show your damage to the boss in the current fight |
+| `/boss admin start` | Start a boss battle with the specified ball and HP. Choose a countryball to be the boss (required). Choose HP (Required), Choose custom images for defend, attack and start image |
+| `/boss admin attack` | Start a round where the Boss Attacks. With this command you can choose how much attack the boss deals (Optional, Defaulted to RNG from default 0 to 2000, can be changed in code) |
+| `/boss admin defend` | Start a round where the Boss Defends |
+| `/boss admin end_round` | End the current round and displays user performance about the round |
+| `/boss admin conclude` | Finish the boss, conclude the Winner. This ends the boss battle and rewards the winner, but you can choose to have *no* winner |
+| `/boss admin disqualify` | Disqualify a member from the boss |
+| `/boss admin hackjoin` | Force join a user to the boss battle |
+| `/boss admin ping` | Ping all the alive players |
+| `/boss admin stats` | See current stats of the boss |
+
+**How to Play:** Some commands can only be used by admins, these control the boss actions. Players can join using the join button that appears when the boss starts. Repeat the attack/defend rounds until the boss' HP runs out, then conclude the battle.
+
+## Installation
+
+### 1 — Important Notes
+
+1. **You must have a special called "Boss" in your dex** - This is for rewarding the winner. Make it so the special's end date is the 1st of January 1970 and has a rarity of 0.
+
+2. **Only use a countryball as a boss** if it has both the collectible and wild cards stored, otherwise this will result in an error. Cards without wild cards do not work as a boss. If you are using a ball made from the admin panel for the boss, then it's fine, since admin panel requires wild card.
+
+3. You may change the shiny buffs in the code to suit your dex better - it's defaulted at 1000 HP & 1000 ATK.
+
+### 2 — Rebuild and start the bot
+
+```bash
+docker compose build
+docker compose up -d
+```
+
+This will install the package and start the bot.
