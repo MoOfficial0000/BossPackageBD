@@ -376,7 +376,7 @@ class Boss(commands.GroupCog, name="boss"):
         
         # Apply shiny buffs if applicable
         messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot)} has been selected for this round, with {ball_attack} ATK and {ball_health} HP"
-        if ball.special_id and "🌌" in messageforuser:
+        if ball.special_id and "🔮" in messageforuser:
             messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot)} has been selected for this round, with {ball_attack}+{MYTHICALBUFFS[0]} ATK and {ball_health}+{MYTHICALBUFFS[1]} HP"
         elif ball.special_id and "✨" in messageforuser:
             messageforuser = f"{ball.description(short=True, include_emoji=True, bot=self.bot)} has been selected for this round, with {ball_attack}+{SHINYBUFFS[0]} ATK and {ball_health}+{SHINYBUFFS[1]} HP"
@@ -543,7 +543,7 @@ class Boss(commands.GroupCog, name="boss"):
             
             # Re-check shiny buffs for logic
             ball_desc = ball.description(short=True, include_emoji=True, bot=self.bot)
-            if ball.special_id and "🌌" in ball_desc:
+            if ball.special_id and "🔮" in ball_desc:
                 ball_health += MYTHICALBUFFS[1]
                 ball_attack += MYTHICALBUFFS[0]
             elif ball.special_id and "✨" in ball_desc:
